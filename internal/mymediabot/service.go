@@ -19,7 +19,7 @@ type Service struct {
 func NewService(settings *ServiceSettings, logger *zap.Logger) (*Service, error) {
 	srv := &Service{
 		settings: settings,
-		cmdProc:  cmdproc.NewCmdProcessor(logger),
+		cmdProc:  cmdproc.NewCmdProcessor(settings.DebugMode, logger),
 		logger:   logger,
 	}
 

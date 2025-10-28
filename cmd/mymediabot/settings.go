@@ -14,6 +14,7 @@ const (
 	_defaultToken       = ""
 	_defaultLogLevel    = "INFO"
 	_defaultPollTimeout = 10 * time.Second
+	_defaultDebugMode   = false
 )
 
 type IDList []int64
@@ -36,6 +37,7 @@ type Config struct {
 	PollTimeOut    time.Duration
 	LogLevel       string
 	AllowedUserIDs IDList
+	DebugMode      bool
 }
 
 func LoadConfig(flagSet flag.FlagSet, flags []string) (*Config, error) {
@@ -45,6 +47,7 @@ func LoadConfig(flagSet flag.FlagSet, flags []string) (*Config, error) {
 	flagSet.StringVar(&config.LogLevel, "l", _defaultLogLevel, "Log level")
 	flagSet.DurationVar(&config.PollTimeOut, "p", _defaultPollTimeout, "Telegram API poll timeout")
 	flagSet.Var(&config.AllowedUserIDs, "u", "Allowed User ID")
+	flagSet.BoolVar(&config.DebugMode, "b", _defaultDebugMode, "Debug mode")
 
 	flagSet.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
@@ -69,5 +72,6 @@ func ServiceSettingsAdapt(config *Config, buildCommit string) (*bot.ServiceSetti
 		config.PollTimeOut,
 		config.AllowedUserIDs,
 		buildCommit,
+		config.DebugMode,
 	)
 }

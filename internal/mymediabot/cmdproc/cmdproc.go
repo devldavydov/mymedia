@@ -6,11 +6,12 @@ import (
 )
 
 type CmdProcessor struct {
-	logger *zap.Logger
+	logger    *zap.Logger
+	debugMode bool
 }
 
-func NewCmdProcessor(logger *zap.Logger) *CmdProcessor {
-	return &CmdProcessor{logger: logger}
+func NewCmdProcessor(debugMode bool, logger *zap.Logger) *CmdProcessor {
+	return &CmdProcessor{debugMode: debugMode, logger: logger}
 }
 
 func (r *CmdProcessor) Stop() {
