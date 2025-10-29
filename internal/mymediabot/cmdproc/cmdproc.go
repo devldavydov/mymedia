@@ -1,3 +1,4 @@
+//go:generate go run ./gen/gen.go -in commands.yaml -out cmdproc_generated.go
 package cmdproc
 
 import (
@@ -10,6 +11,8 @@ import (
 	"go.uber.org/zap"
 	tele "gopkg.in/telebot.v4"
 )
+
+var optsHTML = &tele.SendOptions{ParseMode: tele.ModeHTML}
 
 type CmdProcessor struct {
 	storageDir string
@@ -25,13 +28,13 @@ func (r *CmdProcessor) Stop() {
 }
 
 func (r *CmdProcessor) ProcessCmd(c tele.Context, cmd string, userID int64) error {
-	return nil
+	return r.process(c, cmd, userID)
 }
 
 func (r *CmdProcessor) ProcessDocument(c tele.Context, doc *tele.Document, userID int64) error {
 	if doc == nil {
 		r.logger.Error("empty document", zap.Int64("userID", userID))
-		return c.Send(m.MsgEmptyFile)
+		return c.Send(m.MsgFileEmpty)
 	}
 
 	fi, err := c.Bot().FileByID(doc.FileID)
@@ -41,7 +44,7 @@ func (r *CmdProcessor) ProcessDocument(c tele.Context, doc *tele.Document, userI
 			zap.String("fileName", doc.FileName),
 			zap.Int64("userID", userID),
 			zap.Error(err))
-		return c.Send(fmt.Sprintf(m.MsgFileInfoErr, doc.FileName))
+		return c.Send(fmt.Sprintf(m.MsgFileInfoErr, doc.FileName, err))
 	}
 
 	localFilePath := filepath.Join(r.storageDir, getLocalFileName(doc.FileName))
@@ -51,7 +54,7 @@ func (r *CmdProcessor) ProcessDocument(c tele.Context, doc *tele.Document, userI
 			zap.String("fileName", doc.FileName),
 			zap.Int64("userID", userID),
 			zap.Error(err))
-		return c.Send(fmt.Sprintf(m.MsgFileUploadErr, doc.FileName))
+		return c.Send(fmt.Sprintf(m.MsgFileUploadErr, doc.FileName, err))
 	}
 
 	return c.Send(fmt.Sprintf(m.MsgFileUploaded, doc.FileName))
@@ -61,4 +64,19 @@ func getLocalFileName(srcFileName string) string {
 	localName := strings.ReplaceAll(srcFileName, " ", "_")
 	localName = uuid.New().String()[:8] + "_" + localName
 	return localName
+}
+
+type CmdResponse struct {
+	what any
+	opts []any
+}
+
+func NewCmdResponse(what any, opts ...any) CmdResponse {
+	return CmdResponse{what: what, opts: opts}
+}
+
+func NewSingleCmdResponse(what any, opts ...any) []CmdResponse {
+	return []CmdResponse{
+		{what: what, opts: opts},
+	}
 }

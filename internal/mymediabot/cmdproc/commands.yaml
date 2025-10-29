@@ -1,0 +1,25 @@
+commands:
+  - name: f
+    description: Управление файлами
+    description_short: Файлы
+    subcommands:
+    - name: ls
+      func: fileListCommand
+      description: Список
+      args:
+    - name: rm
+      func: fileRmCommand
+      description: Удалить
+      args:
+      - name: Паттерн
+        type: stringGE0
+    - name: dl
+      func: fileDownloadCommand
+      description: Скачать
+      args:
+      - name: Паттерн
+        type: stringGE0
+types:
+  - name: stringGE0
+    description: Строка длиной >=0
+    description_short: Строка>=0

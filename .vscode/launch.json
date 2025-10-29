@@ -9,6 +9,9 @@
             "program": "${workspaceFolder}/cmd/mymediabot/",
             "args": [
                 "-t", "BOT_TOKEN",
+                "-u", "USER_ID",
+                "-s", "./storage",
+                "-b", "true"
             ]
         },
     ]
