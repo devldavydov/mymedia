@@ -3,6 +3,7 @@ module github.com/devldavydov/mymedia
 go 1.23.5
 
 require (
+	github.com/google/uuid v1.1.2
 	go.uber.org/zap v1.27.0
 	gopkg.in/telebot.v4 v4.0.0-beta.5
 )

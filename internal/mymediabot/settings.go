@@ -7,6 +7,7 @@ type ServiceSettings struct {
 	PollTimeOut    time.Duration
 	BuildCommit    string
 	AllowedUserIDs []int64
+	StorageDir     string
 	DebugMode      bool
 }
 
@@ -14,6 +15,7 @@ func NewServiceSettings(
 	token string,
 	pollTimeout time.Duration,
 	allowedUserIDs []int64,
+	storageDir string,
 	buildVersion string,
 	debugMode bool) (*ServiceSettings, error) {
 
@@ -22,6 +24,7 @@ func NewServiceSettings(
 		PollTimeOut:    pollTimeout,
 		BuildCommit:    buildVersion,
 		AllowedUserIDs: allowedUserIDs,
+		StorageDir:     storageDir,
 		DebugMode:      debugMode,
 	}, nil
 }

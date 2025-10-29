@@ -14,6 +14,7 @@ const (
 	_defaultToken       = ""
 	_defaultLogLevel    = "INFO"
 	_defaultPollTimeout = 10 * time.Second
+	_defaultStorageDir  = ""
 	_defaultDebugMode   = false
 )
 
@@ -37,6 +38,7 @@ type Config struct {
 	PollTimeOut    time.Duration
 	LogLevel       string
 	AllowedUserIDs IDList
+	StorageDir     string
 	DebugMode      bool
 }
 
@@ -47,6 +49,7 @@ func LoadConfig(flagSet flag.FlagSet, flags []string) (*Config, error) {
 	flagSet.StringVar(&config.LogLevel, "l", _defaultLogLevel, "Log level")
 	flagSet.DurationVar(&config.PollTimeOut, "p", _defaultPollTimeout, "Telegram API poll timeout")
 	flagSet.Var(&config.AllowedUserIDs, "u", "Allowed User ID")
+	flagSet.StringVar(&config.StorageDir, "s", _defaultStorageDir, "Storage dir")
 	flagSet.BoolVar(&config.DebugMode, "b", _defaultDebugMode, "Debug mode")
 
 	flagSet.Usage = func() {
@@ -63,6 +66,10 @@ func LoadConfig(flagSet flag.FlagSet, flags []string) (*Config, error) {
 		return nil, fmt.Errorf("invalid token")
 	}
 
+	if config.StorageDir == _defaultStorageDir {
+		return nil, fmt.Errorf("invalid storage dir")
+	}
+
 	return config, nil
 }
 
@@ -71,6 +78,7 @@ func ServiceSettingsAdapt(config *Config, buildCommit string) (*bot.ServiceSetti
 		config.Token,
 		config.PollTimeOut,
 		config.AllowedUserIDs,
+		config.StorageDir,
 		buildCommit,
 		config.DebugMode,
 	)

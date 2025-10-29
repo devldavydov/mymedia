@@ -1,17 +1,24 @@
 package cmdproc
 
 import (
+	"fmt"
+	"path/filepath"
+	"strings"
+
+	m "github.com/devldavydov/mymedia/internal/common/messages"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	tele "gopkg.in/telebot.v4"
 )
 
 type CmdProcessor struct {
-	logger    *zap.Logger
-	debugMode bool
+	storageDir string
+	logger     *zap.Logger
+	debugMode  bool
 }
 
-func NewCmdProcessor(debugMode bool, logger *zap.Logger) *CmdProcessor {
-	return &CmdProcessor{debugMode: debugMode, logger: logger}
+func NewCmdProcessor(storageDir string, debugMode bool, logger *zap.Logger) *CmdProcessor {
+	return &CmdProcessor{storageDir: storageDir, debugMode: debugMode, logger: logger}
 }
 
 func (r *CmdProcessor) Stop() {
@@ -22,5 +29,36 @@ func (r *CmdProcessor) ProcessCmd(c tele.Context, cmd string, userID int64) erro
 }
 
 func (r *CmdProcessor) ProcessDocument(c tele.Context, doc *tele.Document, userID int64) error {
-	return nil
+	if doc == nil {
+		r.logger.Error("empty document", zap.Int64("userID", userID))
+		return c.Send(m.MsgEmptyFile)
+	}
+
+	fi, err := c.Bot().FileByID(doc.FileID)
+	if err != nil {
+		r.logger.Error(
+			"get file info error",
+			zap.String("fileName", doc.FileName),
+			zap.Int64("userID", userID),
+			zap.Error(err))
+		return c.Send(fmt.Sprintf(m.MsgFileInfoErr, doc.FileName))
+	}
+
+	localFilePath := filepath.Join(r.storageDir, getLocalFileName(doc.FileName))
+	if err = c.Bot().Download(&fi, localFilePath); err != nil {
+		r.logger.Error(
+			"file upload error",
+			zap.String("fileName", doc.FileName),
+			zap.Int64("userID", userID),
+			zap.Error(err))
+		return c.Send(fmt.Sprintf(m.MsgFileUploadErr, doc.FileName))
+	}
+
+	return c.Send(fmt.Sprintf(m.MsgFileUploaded, doc.FileName))
+}
+
+func getLocalFileName(srcFileName string) string {
+	localName := strings.ReplaceAll(srcFileName, " ", "_")
+	localName = uuid.New().String()[:8] + "_" + localName
+	return localName
 }
