@@ -15,6 +15,8 @@ const (
 	MsgFileDeleteErr = "Ошибка удаления файла '%s': %s"
 	MsgFileTotal     = "Итого: %d"
 	MsgFileDeleted   = "Удалено: %d"
+	MsgFileRenamed   = "Переименовано: %d"
+	MsgFileRenameErr = "Ошибка переименования файла '%s': %s"
 
 	MsgOK = "OK"
 )

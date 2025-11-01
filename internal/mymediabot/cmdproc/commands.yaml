@@ -19,6 +19,16 @@ commands:
       args:
       - name: Паттерн
         type: stringGE0
+  - name: p
+    description: Обработка
+    description_short: Обработка
+    subcommands:
+    - name: exifr
+      func: prcExifRename
+      description: Переименование EXIF
+      args:
+      - name: Паттерн
+        type: stringGE0
 types:
   - name: stringGE0
     description: Строка длиной >=0

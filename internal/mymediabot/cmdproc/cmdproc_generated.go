@@ -34,6 +34,8 @@ func (r *CmdProcessor) process(c tele.Context, cmd string, userID int64) error {
 	switch cmdParts[0] {
 	case "f":
 		resp = r.process_f("f", cmdParts[1:], userID)
+	case "p":
+		resp = r.process_p("p", cmdParts[1:], userID)
 	case "h":
 		resp = r.processHelp()
 	default:
@@ -142,10 +144,64 @@ func (r *CmdProcessor) process_f(baseCmd string, cmdParts []string, userID int64
 	return resp
 }
 
+func (r *CmdProcessor) process_p(baseCmd string, cmdParts []string, userID int64) []CmdResponse {
+	if len(cmdParts) == 0 {
+		r.logger.Error(
+			"invalid command",
+			zap.Strings("cmdParts", cmdParts),
+			zap.Int64("userID", userID),
+		)
+		return NewSingleCmdResponse(m.MsgErrInvalidCommand)
+	}
+
+	var resp []CmdResponse
+
+	switch cmdParts[0] {
+	case "exifr":
+		if len(cmdParts[1:]) != 1 {
+			return NewSingleCmdResponse(m.MsgErrInvalidArgsCount)
+		}
+		
+		cmdParts = cmdParts[1:]
+		
+		val0, err := parseStringGE0(cmdParts[0])
+		if err != nil {
+			return argError("Паттерн")
+		}
+		
+		resp = r.prcExifRename(
+			userID,
+			val0,
+			)
+				
+	case "h":
+		return NewSingleCmdResponse(
+			newCmdHelpBuilder(baseCmd, "Обработка").
+			addCmd(
+				"Переименование EXIF",
+				"exifr",
+				"Паттерн [Строка>=0]",
+				).
+			build(),
+		optsHTML)
+
+	default:
+		r.logger.Error(
+			"invalid command",
+			zap.Strings("cmdParts", cmdParts),
+			zap.Int64("userID", userID),
+		)
+		resp = NewSingleCmdResponse(m.MsgErrInvalidCommand)
+	}
+
+	return resp
+}
+
 func (r *CmdProcessor) processHelp() []CmdResponse {
 	var sb strings.Builder
 	sb.WriteString("<b>Команды помощи по разделам:</b>\n")
 	sb.WriteString("<b>\u2022 f,h</b> - Файлы\n")
+	sb.WriteString("<b>\u2022 p,h</b> - Обработка\n")
 	sb.WriteString("\n<b>Типы данных:</b>\n")
 	sb.WriteString("<b>\u2022 Строка>=0</b> - Строка длиной >=0\n")
 	return NewSingleCmdResponse(sb.String(), optsHTML)
