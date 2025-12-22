@@ -10,7 +10,7 @@ generate:
 	go generate ./...
 
 .PHONY: build
-build: build_bot
+build: build_bot build_cli
 
 .PHONY: build_bot
 build_bot:
@@ -20,6 +20,15 @@ build_bot:
 	go build \
 	-ldflags "-X 'main.buildDate=$(BUILD_DATE)' -X main.buildCommit=$(BUILD_COMMIT)" \
 	-o ../../bin/mymediabot .	 
+
+.PHONY: build_cli
+build_bot:
+	@echo "\n### $@"
+	@mkdir -p ./bin
+	@cd cmd/mymediacli && \
+	go build \
+	-ldflags "-X 'main.buildDate=$(BUILD_DATE)' -X main.buildCommit=$(BUILD_COMMIT)" \
+	-o ../../bin/mymediacli .	
 
 .PHONY: test
 test:
