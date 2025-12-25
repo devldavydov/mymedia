@@ -22,7 +22,7 @@ build_bot:
 	-o ../../bin/mymediabot .	 
 
 .PHONY: build_cli
-build_bot:
+build_cli:
 	@echo "\n### $@"
 	@mkdir -p ./bin
 	@cd cmd/mymediacli && \
