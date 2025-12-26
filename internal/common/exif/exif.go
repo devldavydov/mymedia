@@ -15,12 +15,14 @@ func RenameFile(dir, fileName string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
 
 	goexif.RegisterParsers(mknote.All...)
 
-	x, err := goexif.Decode(f)
-	if err != nil {
+	var x *goexif.Exif
+	if x, err = func() (*goexif.Exif, error) {
+		defer f.Close()
+		return goexif.Decode(f)
+	}(); err != nil {
 		return err
 	}
 

@@ -10,7 +10,7 @@ generate:
 	go generate ./...
 
 .PHONY: build
-build: build_bot build_cli
+build: build_bot build_cli build_cli_win
 
 .PHONY: build_bot
 build_bot:
@@ -28,7 +28,16 @@ build_cli:
 	@cd cmd/mymediacli && \
 	go build \
 	-ldflags "-X 'main.buildDate=$(BUILD_DATE)' -X main.buildCommit=$(BUILD_COMMIT)" \
-	-o ../../bin/mymediacli .	
+	-o ../../bin/mymediacli .
+
+.PHONY: build_cli_win
+build_cli_win:
+	@echo "\n### $@"
+	@mkdir -p ./bin
+	@cd cmd/mymediacli && \
+	GOOS=windows GOARCH=amd64 go build \
+	-ldflags "-X 'main.buildDate=$(BUILD_DATE)' -X main.buildCommit=$(BUILD_COMMIT)" \
+	-o ../../bin/mymediacli.exe .
 
 .PHONY: test
 test:
