@@ -18,13 +18,12 @@ func RenameFile(dir, fileName string) error {
 
 	goexif.RegisterParsers(mknote.All...)
 
-	var x *goexif.Exif
-	if x, err = func() (*goexif.Exif, error) {
-		defer f.Close()
-		return goexif.Decode(f)
-	}(); err != nil {
+	x, err := goexif.Decode(f)
+	if err != nil {
+		f.Close()
 		return err
 	}
+	f.Close()
 
 	tm, _ := x.DateTime()
 	dstPath := filepath.Join(dir, tm.Format("20060102_150405.jpg"))
